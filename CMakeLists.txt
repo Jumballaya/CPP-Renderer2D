@@ -10,6 +10,11 @@ add_executable(renderer
     src/main.cpp
     src/Application.hpp
     src/Application.cpp
+
+    src/renderer/gl/VertexBuffer.hpp
+    src/renderer/gl/VertexArray.hpp
+    src/renderer/gl/IndexBuffer.hpp
+    src/renderer/gl/Shader.hpp
 )
 
 target_include_directories(renderer PUBLIC ${glad_SOURCE_DIR}/include)
