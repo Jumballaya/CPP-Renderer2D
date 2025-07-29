@@ -8,6 +8,8 @@ add_subdirectory(vendor)
 
 add_executable(renderer
     src/main.cpp
+    src/Application.hpp
+    src/Application.cpp
 )
 
 target_include_directories(renderer PUBLIC ${glad_SOURCE_DIR}/include)
