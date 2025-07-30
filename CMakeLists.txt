@@ -5,19 +5,5 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(vendor)
-
-add_executable(renderer
-    src/main.cpp
-    src/Application.hpp
-    src/Application.cpp
-
-    src/renderer/gl/VertexBuffer.hpp
-    src/renderer/gl/VertexArray.hpp
-    src/renderer/gl/IndexBuffer.hpp
-    src/renderer/gl/Shader.hpp
-    src/renderer/gl/Texture2D.hpp
-    src/renderer/gl/Texture2DArray.hpp
-)
-
-target_include_directories(renderer PUBLIC ${glad_SOURCE_DIR}/include)
-target_link_libraries(renderer PRIVATE vendor_libs)
+add_subdirectory(renderer2d)
+add_subdirectory(demo)
