@@ -4,6 +4,7 @@
 
 #include "../common.hpp"
 
+namespace gl {
 struct VertexBuffer {
  public:
   VertexBuffer() = default;
@@ -59,3 +60,4 @@ struct VertexBuffer {
  private:
   GLuint _id;
 };
+}

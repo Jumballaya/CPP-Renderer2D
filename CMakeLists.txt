@@ -15,6 +15,8 @@ add_executable(renderer
     src/renderer/gl/VertexArray.hpp
     src/renderer/gl/IndexBuffer.hpp
     src/renderer/gl/Shader.hpp
+    src/renderer/gl/Texture2D.hpp
+    src/renderer/gl/Texture2DArray.hpp
 )
 
 target_include_directories(renderer PUBLIC ${glad_SOURCE_DIR}/include)

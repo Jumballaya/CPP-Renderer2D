@@ -5,6 +5,7 @@
 
 #include "Application.hpp"
 #include "renderer/gl/Shader.hpp"
+#include "renderer/gl/Texture2D.hpp"
 #include "renderer/gl/VertexArray.hpp"
 
 std::vector<float> vertex_data = {
@@ -13,6 +14,25 @@ std::vector<float> vertex_data = {
     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // v1: bottom-right
     1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
     -1.0f, 1.0f, 0.0f, 0.0f, 1.0f    // v3: top-left
+};
+
+std::vector<uint8_t> image{
+    255,
+    255,
+    255,
+    255,
+    0,
+    0,
+    0,
+    255,
+    0,
+    0,
+    0,
+    255,
+    255,
+    255,
+    255,
+    255,
 };
 
 std::vector<uint16_t> index_data = {0, 1, 2, 0, 2, 3};
@@ -26,12 +46,16 @@ int main() {
   std::filesystem::path fragPath = "assets/shaders/2d-renderer/fragment.glsl";
   std::filesystem::path vertPath = "assets/shaders/2d-renderer/vertex.glsl";
 
-  Shader shader;
+  gl::Texture2D tex;
+  tex.initialize(2, 2);
+  tex.setData(image);
+
+  gl::Shader shader;
   shader.initialize();
   shader.bind();
   shader.loadShader(vertPath, fragPath);
 
-  VertexArray vao;
+  gl::VertexArray vao;
   vao.initialize();
   vao.bind();
   vao.setVertexData(vertex_data);
@@ -44,6 +68,8 @@ int main() {
 
     shader.bind();
     vao.bind();
+    tex.bindToSlot(0);
+    shader.uniform("u_texture", 0);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
     vao.unbind();
     shader.unbind();

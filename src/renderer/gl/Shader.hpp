@@ -10,6 +10,8 @@
 
 #include "../common.hpp"
 
+namespace gl {
+
 class Shader {
  public:
   Shader() = default;
@@ -156,3 +158,4 @@ class Shader {
     return ss.str();
   }
 };
+}

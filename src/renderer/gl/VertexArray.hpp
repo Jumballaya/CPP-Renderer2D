@@ -7,6 +7,7 @@
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
 
+namespace gl {
 struct VertexArray {
  public:
   VertexArray() = default;
@@ -77,3 +78,4 @@ struct VertexArray {
   VertexBuffer _vbo;
   IndexBuffer _ibo;
 };
+}

@@ -5,6 +5,7 @@
 
 #include "../common.hpp"
 
+namespace gl {
 struct IndexBuffer {
  public:
   IndexBuffer() = default;
@@ -60,3 +61,4 @@ struct IndexBuffer {
  private:
   GLuint _id;
 };
+}
