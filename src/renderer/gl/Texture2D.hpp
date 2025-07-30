@@ -74,6 +74,10 @@ struct Texture2D {
     return _texture != 0;
   }
 
+  GLuint id() const {
+    return _texture;
+  }
+
  private:
   GLuint _texture = 0;
   GLsizei _width = 0;
