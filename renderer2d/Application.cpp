@@ -3,46 +3,24 @@
 #include <iostream>
 
 Application::~Application() {
-  if (_window) {
-    glfwDestroyWindow(_window);
-  }
   glfwTerminate();
 }
 
 void Application::update() {
-  glfwSwapBuffers(_window);
-  glfwPollEvents();
+  _window.swapBuffers();
+  _window.pollEvents();
 }
 
 bool Application::initialize() {
-  if (!glfwInit()) {
-    std::cerr << "GLFW failed to init\n";
-    return false;
-  }
+  _window.initialize(800, 600, "2D Renderer");
 
-  _window = glfwCreateWindow(800, 600, "GLAD v2 works!", nullptr, nullptr);
-  if (!_window) {
-    std::cerr << "GLFW window creation failed\n";
-    glfwTerminate();
-    return false;
-  }
+  _window.setResizeCallback([](int w, int h) {
+    std::cout << "Window resized: " << w << " x " << h << "\n";
+  });
 
-  glfwMakeContextCurrent(_window);
-
-  if (!gladLoadGL(glfwGetProcAddress)) {
-    std::cerr << "Glad failed to load OpenGL\n";
-    glfwDestroyWindow(_window);
-    glfwTerminate();
-    return false;
-  }
-
-  std::cout << "OpenGL version loaded: " << glGetString(GL_VERSION) << "\n";
   return true;
 }
 
 bool Application::shouldClose() const {
-  if (!_window) {
-    return true;
-  }
-  return glfwWindowShouldClose(_window);
+  return _window.shouldClose();
 }

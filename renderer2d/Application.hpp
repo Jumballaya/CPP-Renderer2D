@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Window.hpp"
 #include "renderer/common.hpp"
 
 class Application {
@@ -18,5 +19,5 @@ class Application {
   bool shouldClose() const;
 
  private:
-  GLFWwindow* _window;
+  Window _window;
 };

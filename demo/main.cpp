@@ -3,10 +3,10 @@
 #include <iostream>
 #include <vector>
 
-#include "Application.hpp"
-#include "renderer/gl/Shader.hpp"
-#include "renderer/gl/Texture2D.hpp"
-#include "renderer/gl/VertexArray.hpp"
+#include "../renderer2d/Application.hpp"
+#include "../renderer2d/renderer/gl/Shader.hpp"
+#include "../renderer2d/renderer/gl/Texture2D.hpp"
+#include "../renderer2d/renderer/gl/VertexArray.hpp"
 
 std::vector<float> vertex_data = {
     // X     Y     Z     U     V
