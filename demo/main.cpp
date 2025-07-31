@@ -16,6 +16,16 @@ std::vector<float> vertex_data = {
     -1.0f, 1.0f, 0.0f, 0.0f, 1.0f    // v3: top-left
 };
 
+std::vector<gl::VertexLayout> vertex_layout = {
+    {.elementCount = 3,
+     .type = GL_FLOAT,
+     .normalized = false,
+     .offset = 0},
+    {.elementCount = 2,
+     .type = GL_FLOAT,
+     .normalized = false,
+     .offset = sizeof(float) * 3}};
+
 std::vector<uint8_t> image{
     255,
     255,
@@ -58,7 +68,7 @@ int main() {
   gl::VertexArray vao;
   vao.initialize();
   vao.bind();
-  vao.setVertexData(vertex_data);
+  vao.setVertexData(vertex_data, 5 * sizeof(float), vertex_layout);
   vao.setIndexData(index_data);
   vao.unbind();
 

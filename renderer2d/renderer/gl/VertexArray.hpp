@@ -1,13 +1,21 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
 #include "../common.hpp"
-#include "IndexBuffer.hpp"
-#include "VertexBuffer.hpp"
+#include "GLBuffer.hpp"
 
 namespace gl {
+
+struct VertexLayout {
+  int elementCount;
+  GLenum type;
+  bool normalized;
+  int offset;
+};
+
 struct VertexArray {
  public:
   VertexArray() = default;
@@ -39,22 +47,25 @@ struct VertexArray {
 
   void initialize() {
     glGenVertexArrays(1, &_vao);
-    _vbo.initialize();
-    _ibo.initialize();
+    _vbo.initialize(gl::BufferType::Vertex);
+    _ibo.initialize(gl::BufferType::Index);
   }
 
   void setIndexData(std::vector<uint16_t>& data) {
     bind();
-    _ibo.setData(data);
+    _ibo.setData(data.data(), data.size() * sizeof(uint16_t));
   }
 
-  void setVertexData(std::vector<float>& data) {
+  void setVertexData(std::vector<float>& data, int stride, std::vector<VertexLayout>& layout) {
     bind();
-    _vbo.setData(data);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, false, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, false, 5 * sizeof(float), (void*)(sizeof(float) * 3));
+    _vbo.setData(data.data(), data.size() * sizeof(float));
+
+    int offset = 0;
+    for (int i = 0; i < layout.size(); ++i) {
+      auto& vl = layout[i];
+      glEnableVertexAttribArray(i);
+      glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, stride, (void*)vl.offset);
+    }
   }
 
   bool isValid() const {
@@ -75,7 +86,7 @@ struct VertexArray {
 
  private:
   GLuint _vao;
-  VertexBuffer _vbo;
-  IndexBuffer _ibo;
+  GLBuffer _vbo;
+  GLBuffer _ibo;
 };
-}
+}  // namespace gl
