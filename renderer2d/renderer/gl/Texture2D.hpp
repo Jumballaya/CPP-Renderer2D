@@ -44,15 +44,17 @@ struct Texture2D {
     return *this;
   }
 
-  void initialize(GLsizei width, GLsizei height, GLint internalFormat = GL_RGBA8) {
+  void initialize(GLsizei width, GLsizei height, GLenum internalFormat = GL_RGBA8, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE) {
     glGenTextures(1, &_texture);
     _width = width;
     _height = height;
     _internalFormat = internalFormat;
+    _format = format;
+    _type = type;
 
-    bindToSlot(0);
+    bind();
 
-    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, _format, _type, nullptr);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -60,17 +62,21 @@ struct Texture2D {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   }
 
-  void setData(const std::vector<uint8_t>& data, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE) {
-    bindToSlot(0);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, format, type, data.data());
+  void setData(const std::vector<uint8_t>& data) {
+    bind();
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, _format, _type, data.data());
   }
 
   void bindToSlot(GLuint slot) {
     glActiveTexture(GL_TEXTURE0 + slot);
+    bind();
+  }
+
+  void bind() {
     glBindTexture(GL_TEXTURE_2D, _texture);
   }
 
-  bool isValid() {
+  bool isValid() const {
     return _texture != 0;
   }
 
@@ -78,11 +84,30 @@ struct Texture2D {
     return _texture;
   }
 
+  void resize(int newWidth, int newHeight) {
+    if (_width == newWidth && _height == newHeight) {
+      return;
+    }
+
+    _width = newWidth;
+    _height = newHeight;
+
+    if (isValid()) {
+      glDeleteTextures(1, &_texture);
+    }
+
+    glGenTextures(1, &_texture);
+    bind();
+    initialize(newWidth, newHeight, _internalFormat, _format, _type);
+  }
+
  private:
   GLuint _texture = 0;
   GLsizei _width = 0;
   GLsizei _height = 0;
-  GLint _internalFormat = GL_RGBA8;
+  GLenum _internalFormat = GL_RGBA8;
+  GLenum _format = GL_RGBA;
+  GLenum _type = GL_UNSIGNED_BYTE;
 };
 
 }  // namespace gl

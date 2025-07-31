@@ -1,8 +1,10 @@
 #pragma once
 
+#include <iostream>
 #include <utility>
 
 #include "../common.hpp"
+#include "DepthBuffer.hpp"
 #include "Texture2D.hpp"
 
 namespace gl {
@@ -51,20 +53,42 @@ struct FrameBuffer {
 
   void initialize(int width, int height) {
     _color.initialize(width, height);
-    _depth.initialize(width, height);
+
+    attachTextures();
   }
 
   void bind(GLenum target = GL_FRAMEBUFFER) {
     glBindFramebuffer(target, _fbo);
   }
 
-  void unbind() {}
+  void unbind(GLenum target = GL_FRAMEBUFFER) {
+    glBindFramebuffer(target, 0);
+  }
 
-  Texture2D getColorTexture() const {}
+  const Texture2D& getColorTexture() const { return _color; }
 
-  Texture2D getDepthTexture() const {}
+  const DepthBuffer& getDepthBuffer() const { return _depth; }
 
-  void resize(int newWidth, int newHeight);
+  void resize(int newWidth, int newHeight) {
+    if (newWidth == _width && newHeight == _height) {
+      return;
+    }
+
+    _width = newWidth;
+    _height = newHeight;
+
+    _color.resize(_width, _height);
+    _depth.resize(_width, _height);
+
+    bind(GL_FRAMEBUFFER);
+    attachTextures();
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+      std::cerr << "Framebuffer not complete after resize!" << std::endl;
+    }
+
+    unbind(GL_FRAMEBUFFER);
+  }
 
   GLuint id() const { return _fbo; }
 
@@ -73,9 +97,14 @@ struct FrameBuffer {
  private:
   GLuint _fbo;
   Texture2D _color;
-  Texture2D _depth;
+  DepthBuffer _depth;
   int _width = 0;
   int _height = 0;
+
+  void attachTextures() {
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _color.id(), 0);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _depth.id());
+  }
 };
 
 }  // namespace gl
