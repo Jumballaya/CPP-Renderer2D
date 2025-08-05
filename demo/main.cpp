@@ -4,27 +4,10 @@
 #include <vector>
 
 #include "../renderer2d/Application.hpp"
+#include "../renderer2d/renderer/Renderer2D.hpp"
 #include "../renderer2d/renderer/gl/Shader.hpp"
 #include "../renderer2d/renderer/gl/Texture2D.hpp"
 #include "../renderer2d/renderer/gl/VertexArray.hpp"
-
-std::vector<float> vertex_data = {
-    // X     Y     Z     U     V
-    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // v0: bottom-left
-    1.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // v1: bottom-right
-    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
-    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f    // v3: top-left
-};
-
-std::vector<gl::VertexLayout> vertex_layout = {
-    {.elementCount = 3,
-     .type = GL_FLOAT,
-     .normalized = false,
-     .offset = 0},
-    {.elementCount = 2,
-     .type = GL_FLOAT,
-     .normalized = false,
-     .offset = sizeof(float) * 3}};
 
 std::vector<uint8_t> image{
     255,
@@ -45,44 +28,33 @@ std::vector<uint8_t> image{
     255,
 };
 
-std::vector<uint16_t> index_data = {0, 1, 2, 0, 2, 3};
-
 int main() {
   Application app;
   if (!app.initialize()) {
     return -1;
   }
 
-  std::filesystem::path fragPath = "assets/shaders/2d-renderer/fragment.glsl";
-  std::filesystem::path vertPath = "assets/shaders/2d-renderer/vertex.glsl";
+  Renderer2D renderer;
 
-  gl::Texture2D tex;
-  tex.initialize(2, 2);
-  tex.setData(image);
+  auto basicShader = renderer.createShader(
+      "assets/shaders/2d-renderer/fragment.glsl",
+      "assets/shaders/2d-renderer/vertex.glsl");
 
-  gl::Shader shader;
-  shader.initialize();
-  shader.bind();
-  shader.loadShader(vertPath, fragPath);
-
-  gl::VertexArray vao;
-  vao.initialize();
-  vao.bind();
-  vao.setVertexData(vertex_data, 5 * sizeof(float), vertex_layout);
-  vao.setIndexData(index_data);
-  vao.unbind();
+  auto defaultTexture = renderer.createTexture(2, 2, image.data());
 
   while (!app.shouldClose()) {
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    shader.bind();
-    vao.bind();
-    tex.bindToSlot(0);
-    shader.uniform("u_texture", 0);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
-    vao.unbind();
-    shader.unbind();
+    renderer.beginFrame();
+
+    renderer.drawSprite({.transform = glm::mat4{},
+                         .color = {1, 0, 0, 1},
+                         .texRect = {0, 0, 1, 1},
+                         .layer = 0},
+                        defaultTexture);
+
+    renderer.endFrame();
 
     app.update();
   }

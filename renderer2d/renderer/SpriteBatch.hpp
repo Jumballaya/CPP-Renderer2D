@@ -8,6 +8,17 @@
 #include "gl/Texture2D.hpp"
 #include "gl/VertexArray.hpp"
 
+// QUAD Data
+inline std::vector<float> vertex_data = {
+    // X     Y     Z     U     V
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // v0: bottom-left
+    1.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // v1: bottom-right
+    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // v0: bottom-left
+    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
+    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f    // v3: top-left
+};
+
 class SpriteBatch {
  public:
   SpriteBatch() = default;
@@ -17,7 +28,7 @@ class SpriteBatch {
   SpriteBatch& operator=(const SpriteBatch&) noexcept = delete;
 
   SpriteBatch(SpriteBatch&& other) noexcept
-      : _vao(std::move(other._vao)), _quadVbo(std::move(other._quadVbo)), _instances(std::move(other._instances)), _boundTexture(other._boundTexture) {
+      : _quadVao(std::move(other._quadVao)), _instances(std::move(other._instances)), _boundTexture(other._boundTexture) {
     other._boundTexture = nullptr;
   };
 
@@ -26,8 +37,7 @@ class SpriteBatch {
       return *this;
     }
 
-    _vao = std::move(other._vao);
-    _quadVbo = std::move(other._quadVbo);
+    _quadVao = std::move(other._quadVao);
     _instances = std::move(other._instances);
     _boundTexture = other._boundTexture;
     other._boundTexture = nullptr;
@@ -35,14 +45,34 @@ class SpriteBatch {
     return *this;
   }
 
-  void begin();
-  void submit(const SpriteInstance& instance);
-  void flush();
-  void setTexture(gl::Texture2D* tex);
+  void initialize() {
+    _quadVao.initialize();
+    std::vector<gl::VertexLayout> vertex_layout = {
+        {.elementCount = 3,
+         .type = GL_FLOAT,
+         .normalized = false,
+         .offset = 0},
+        {.elementCount = 2,
+         .type = GL_FLOAT,
+         .normalized = false,
+         .offset = sizeof(float) * 3}};
+    _quadVao.setVertexData(vertex_data, 5 * sizeof(float), vertex_layout);
+  }
+
+  void submit(const SpriteInstance& instance) {
+    _instances.push_back(instance);
+  }
+
+  void setTexture(gl::Texture2D* tex) {
+    _boundTexture = tex;
+  }
+
+  void flush() {
+    _instances.clear();
+  }
 
  private:
-  gl::VertexArray _vao;
-  gl::GLBuffer _quadVbo;
+  gl::VertexArray _quadVao;
   std::vector<SpriteInstance> _instances;
   gl::Texture2D* _boundTexture = nullptr;
 };
