@@ -13,7 +13,7 @@ struct VertexLayout {
   int elementCount;
   GLenum type;
   bool normalized;
-  int offset;
+  size_t offset;
 };
 
 struct VertexArray {
@@ -60,11 +60,10 @@ struct VertexArray {
     bind();
     _vbo.setData(data.data(), data.size() * sizeof(float));
 
-    int offset = 0;
     for (int i = 0; i < layout.size(); ++i) {
       auto& vl = layout[i];
       glEnableVertexAttribArray(i);
-      glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, stride, (void*)vl.offset);
+      glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, stride, reinterpret_cast<void*>(vl.offset));
     }
   }
 
@@ -72,7 +71,7 @@ struct VertexArray {
     return _vao != 0;
   }
 
-  void bind() {
+  void bind() const {
     if (_vao) {
       glBindVertexArray(_vao);
       return;
@@ -80,7 +79,7 @@ struct VertexArray {
     unbind();
   }
 
-  void unbind() {
+  void unbind() const {
     glBindVertexArray(0);
   }
 

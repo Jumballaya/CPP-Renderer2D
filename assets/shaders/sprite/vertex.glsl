@@ -7,6 +7,11 @@ layout(location = 5) in vec4 a_color;
 layout(location = 6) in float a_layer;
 layout(location = 7) in vec4 a_texRect;
 
-void main() {
+out vec2 v_texCoord;
 
+
+void main() {
+    gl_Position = a_position;
+    v_texCoord = a_uv;
+    v_texCoord.y = 1.0 - v_texCoord.y;
 }

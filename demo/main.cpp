@@ -36,9 +36,9 @@ int main() {
 
   Renderer2D renderer;
 
-  auto basicShader = renderer.createShader(
-      "assets/shaders/2d-renderer/fragment.glsl",
-      "assets/shaders/2d-renderer/vertex.glsl");
+  auto basicShader = renderer.createShaderFromFiles(
+      "assets/shaders/sprite/vertex.glsl",
+      "assets/shaders/sprite/fragment.glsl");
 
   auto defaultTexture = renderer.createTexture(2, 2, image.data());
 
@@ -48,13 +48,13 @@ int main() {
 
     renderer.beginFrame();
 
-    renderer.drawSprite({.transform = glm::mat4{},
+    renderer.drawSprite({.transform = glm::mat4{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1},
                          .color = {1, 0, 0, 1},
                          .texRect = {0, 0, 1, 1},
                          .layer = 0},
                         defaultTexture);
 
-    renderer.endFrame();
+    renderer.endFrame(basicShader);
 
     app.update();
   }

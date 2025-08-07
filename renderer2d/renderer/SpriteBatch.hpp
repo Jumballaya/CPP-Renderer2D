@@ -71,6 +71,14 @@ class SpriteBatch {
     _instances.clear();
   }
 
+  void bind() const {
+    _quadVao.bind();
+  }
+
+  size_t size() const {
+    return _instances.size();
+  }
+
  private:
   gl::VertexArray _quadVao;
   std::vector<SpriteInstance> _instances;

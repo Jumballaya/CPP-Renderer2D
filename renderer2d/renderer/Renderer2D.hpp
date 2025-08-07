@@ -28,14 +28,21 @@ class Renderer2D {
     }
   }
 
-  void endFrame() {
-    // shader.bind();
-    // vao.bind();
-    // tex.bindToSlot(0);
-    // shader.uniform("u_texture", 0);
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
-    // vao.unbind();
-    // shader.unbind();
+  void endFrame(ShaderHandle shader) {
+    auto foundShader = _shaders.find(shader);
+    if (foundShader == _shaders.end()) {
+      return;
+    }
+
+    foundShader->second.bind();
+
+    for (auto& batchPair : _batches) {
+      auto& batch = batchPair.second;
+      batch.bind();
+      glDrawArraysInstanced(GL_TRIANGLES, 0, 6, batch.size());
+    }
+
+    foundShader->second.unbind();
   }
 
   void drawSprite(const SpriteInstance& sprite, TextureHandle tex) {
@@ -47,10 +54,13 @@ class Renderer2D {
         newBatch.initialize();
         newBatch.setTexture(&texture->second);
         _batches.emplace(tex, std::move(newBatch));
+        newBatch.submit(sprite);
+        return;
       } else {
         throw std::runtime_error("Error: Use of untracked TextureHandle");
       }
     }
+    batch->second.submit(sprite);
   }
 
   TextureHandle createTexture(int width, int height, void* data) {
@@ -74,6 +84,10 @@ class Renderer2D {
     gl::Shader shader;
     shader.initialize();
     shader.loadShader(vertex, fragment);
+
+    _shaders.emplace(handle, std::move(shader));
+
+    return handle;
   }
 
   ShaderHandle createShaderFromFiles(const std::filesystem::path& vertex, const std::filesystem::path& fragment) {
@@ -85,6 +99,10 @@ class Renderer2D {
     shader.bind();
     shader.loadShader(vertex, fragment);
     shader.unbind();
+
+    _shaders.emplace(handle, std::move(shader));
+
+    return handle;
   }
 
  private:
