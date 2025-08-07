@@ -9,6 +9,9 @@
 
 namespace gl {
 
+// @TODO: Create a VertexInstanceLayout struct and then
+//        create a meta VertexArrayLayout struct to wrap both.
+//
 struct VertexLayout {
   int elementCount;
   GLenum type;
@@ -30,7 +33,7 @@ struct VertexArray {
   VertexArray& operator=(VertexArray&) noexcept = delete;
 
   VertexArray(VertexArray&& other) noexcept
-      : _vao(other._vao), _vbo(std::move(other._vbo)), _ibo(std::move(other._ibo)) {
+      : _vao(other._vao), _vbo(std::move(other._vbo)), _ibo(std::move(other._ibo)), _instanceBuffer(std::move(other._instanceBuffer)), _isIndexed(other._isIndexed), _isInstanced(other._isInstanced) {
     other._vao = 0;
   }
 
@@ -41,19 +44,25 @@ struct VertexArray {
     _vao = other._vao;
     _ibo = std::move(other._ibo);
     _vbo = std::move(other._vbo);
+    _instanceBuffer = std::move(other._instanceBuffer);
+    _isIndexed = other._isIndexed;
+    _isInstanced = other._isInstanced;
     other._vao = 0;
     return *this;
   }
 
-  void initialize() {
+  void initialize(bool isInstanced = false) {
     glGenVertexArrays(1, &_vao);
     _vbo.initialize(gl::BufferType::Vertex);
     _ibo.initialize(gl::BufferType::Index);
+    _instanceBuffer.initialize(gl::BufferType::Instance, gl::BufferUsage::DynamicDraw);
+    _isInstanced = isInstanced;
   }
 
   void setIndexData(std::vector<uint16_t>& data) {
     bind();
     _ibo.setData(data.data(), data.size() * sizeof(uint16_t));
+    _isIndexed = true;
   }
 
   void setVertexData(std::vector<float>& data, int stride, std::vector<VertexLayout>& layout) {
@@ -65,6 +74,41 @@ struct VertexArray {
       glEnableVertexAttribArray(i);
       glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, stride, reinterpret_cast<void*>(vl.offset));
     }
+
+    _vertexCount = data.size();
+  }
+
+  // @TODO: Split this into an initializeInstanceData and a setInstanceData
+  //        initialize will take a VertexInstanceLayout and build the code bellow
+  //        setInstanceData will just set the data on the buffer
+  void setInstanceData(const void* data, size_t size, int stride) const {
+    // Hard code sprite instance for now until I create a VertexInstanceLayout struct
+    // start at '2' because 0 is a_position and 1 is a_texCoord
+    int base = 2;
+
+    // Transform
+    for (int i = 0; i < 4; ++i) {
+      glEnableVertexAttribArray(base + i);
+      glVertexAttribPointer(base + i, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteInstance), (void*)(sizeof(float) * i * 4));
+      glVertexAttribDivisor(base + i, 1);
+    }
+
+    // Color
+    glEnableVertexAttribArray(base + 4);
+    glVertexAttribPointer(base + 4, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteInstance), (void*)(sizeof(float) * 16));
+    glVertexAttribDivisor(base + 4, 1);
+
+    // TexRect
+    glEnableVertexAttribArray(base + 5);
+    glVertexAttribPointer(base + 5, 4, GL_FLOAT, GL_FALSE, sizeof(SpriteInstance), (void*)(sizeof(float) * 20));
+    glVertexAttribDivisor(base + 5, 1);
+
+    // Layer
+    glEnableVertexAttribArray(base + 6);
+    glVertexAttribPointer(base + 6, 1, GL_FLOAT, GL_FALSE, sizeof(SpriteInstance), (void*)(sizeof(float) * 24));
+    glVertexAttribDivisor(base + 6, 1);
+
+    _instanceBuffer.setData(data, size);
   }
 
   bool isValid() const {
@@ -83,9 +127,32 @@ struct VertexArray {
     glBindVertexArray(0);
   }
 
+  void draw(size_t instanceCount = 1) const {
+    bind();
+    if (_isIndexed && !_isInstanced) {
+      glDrawElements(GL_TRIANGLES, _vertexCount, GL_UNSIGNED_SHORT, nullptr);
+      return;
+    }
+    if (_isIndexed && _isInstanced) {
+      glDrawElementsInstanced(GL_TRIANGLES, _vertexCount, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+      return;
+    }
+    if (!_isIndexed && _isInstanced) {
+      glDrawArraysInstanced(GL_TRIANGLES, 0, _vertexCount, instanceCount);
+      return;
+    }
+    glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
+  }
+
  private:
   GLuint _vao;
   GLBuffer _vbo;
   GLBuffer _ibo;
+  GLBuffer _instanceBuffer;
+
+  size_t _vertexCount;
+
+  bool _isIndexed = false;
+  bool _isInstanced = false;
 };
 }  // namespace gl

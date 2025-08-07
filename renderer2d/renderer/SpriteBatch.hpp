@@ -26,27 +26,11 @@ class SpriteBatch {
 
   SpriteBatch(const SpriteBatch&) noexcept = delete;
   SpriteBatch& operator=(const SpriteBatch&) noexcept = delete;
-
-  SpriteBatch(SpriteBatch&& other) noexcept
-      : _quadVao(std::move(other._quadVao)), _instances(std::move(other._instances)), _boundTexture(other._boundTexture) {
-    other._boundTexture = nullptr;
-  };
-
-  SpriteBatch& operator=(SpriteBatch&& other) noexcept {
-    if (this == &other) {
-      return *this;
-    }
-
-    _quadVao = std::move(other._quadVao);
-    _instances = std::move(other._instances);
-    _boundTexture = other._boundTexture;
-    other._boundTexture = nullptr;
-
-    return *this;
-  }
+  SpriteBatch(SpriteBatch&& other) noexcept = delete;
+  SpriteBatch& operator=(SpriteBatch&& other) noexcept = delete;
 
   void initialize() {
-    _quadVao.initialize();
+    _quadVao.initialize(true);
     std::vector<gl::VertexLayout> vertex_layout = {
         {.elementCount = 3,
          .type = GL_FLOAT,
@@ -77,6 +61,14 @@ class SpriteBatch {
 
   size_t size() const {
     return _instances.size();
+  }
+
+  void draw() const {
+    if (_boundTexture != nullptr) {
+      _boundTexture->bind();
+    }
+    _quadVao.setInstanceData(_instances.data(), sizeof(SpriteInstance) * _instances.size(), sizeof(SpriteInstance));
+    _quadVao.draw(_instances.size());
   }
 
  private:

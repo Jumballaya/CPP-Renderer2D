@@ -37,9 +37,7 @@ class Renderer2D {
     foundShader->second.bind();
 
     for (auto& batchPair : _batches) {
-      auto& batch = batchPair.second;
-      batch.bind();
-      glDrawArraysInstanced(GL_TRIANGLES, 0, 6, batch.size());
+      batchPair.second.draw();
     }
 
     foundShader->second.unbind();
@@ -50,10 +48,10 @@ class Renderer2D {
     if (batch == _batches.end()) {
       auto texture = _textures.find(tex);
       if (texture != _textures.end()) {
-        SpriteBatch newBatch;
+        _batches.try_emplace(tex);
+        SpriteBatch& newBatch = _batches.at(tex);
         newBatch.initialize();
         newBatch.setTexture(&texture->second);
-        _batches.emplace(tex, std::move(newBatch));
         newBatch.submit(sprite);
         return;
       } else {
