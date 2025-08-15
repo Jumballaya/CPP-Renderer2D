@@ -3,7 +3,7 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
+#include <span>
 
 #include "../common.hpp"
 
@@ -62,7 +62,7 @@ struct Texture2DArray {
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   }
 
-  void setLayerData(GLint layerIndex, const std::vector<std::uint8_t>& data, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE) {
+  void setLayerData(GLint layerIndex, const std::span<const std::uint8_t> data, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE) {
     assert(isValid());
     assert(layerIndex >= 0 && layerIndex < _layers);
     bindToSlot(0);

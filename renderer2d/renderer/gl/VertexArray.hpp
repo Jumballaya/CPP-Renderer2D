@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
-#include <vector>
 
 #include "../common.hpp"
 #include "GLBuffer.hpp"
@@ -54,13 +53,18 @@ struct VertexArray {
 
   void initialize(bool isInstanced = false) {
     glGenVertexArrays(1, &_vao);
+    bind();
     _vbo.initialize(gl::BufferType::Vertex);
     _ibo.initialize(gl::BufferType::Index);
     _instanceBuffer.initialize(gl::BufferType::Instance, gl::BufferUsage::DynamicDraw);
     _isInstanced = isInstanced;
   }
 
-  void setIndexData(std::vector<uint16_t>& data) {
+  void setVertexCount(int vertexCount) {
+    _vertexCount = vertexCount;
+  }
+
+  void setIndexData(std::span<const uint16_t> data) {
     bind();
     _ibo.setData(data.data(), data.size() * sizeof(uint16_t));
     _isIndexed = true;
@@ -75,18 +79,17 @@ struct VertexArray {
       glEnableVertexAttribArray(i);
       glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, strideBytes, reinterpret_cast<void*>(vl.offset));
     }
-
-    int floatsPerVertex = strideBytes / sizeof(float);
-    _vertexCount = data.size() / floatsPerVertex;
   }
 
   // @TODO: Split this into an initializeInstanceData and a setInstanceData
   //        initialize will take a VertexInstanceLayout and build the code bellow
   //        setInstanceData will just set the data on the buffer
   void setInstanceData(const void* data, size_t size, int stride) const {
+    bind();
     // Hard code sprite instance for now until I create a VertexInstanceLayout struct
     // start at '2' because 0 is a_position and 1 is a_texCoord
     int base = 2;
+    _instanceBuffer.bind();
 
     // Transform
     for (int i = 0; i < 4; ++i) {

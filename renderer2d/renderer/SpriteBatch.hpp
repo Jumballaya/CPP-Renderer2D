@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -11,13 +13,13 @@
 // QUAD Data
 inline std::vector<float> vertex_data = {
     // X     Y     Z     U     V
+    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,   // v3: top-left
     -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // v0: bottom-left
     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // v1: bottom-right
     1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
-    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // v0: bottom-left
-    1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
-    -1.0f, 1.0f, 0.0f, 0.0f, 1.0f    // v3: top-left
 };
+
+inline std::vector<uint16_t> index_data = {0, 1, 2, 2, 3, 0};
 
 class SpriteBatch {
  public:
@@ -31,16 +33,18 @@ class SpriteBatch {
 
   void initialize() {
     _quadVao.initialize(true);
-    std::vector<gl::VertexLayout> vertex_layout = {
-        {.elementCount = 3,
-         .type = GL_FLOAT,
-         .normalized = false,
-         .offset = 0},
-        {.elementCount = 2,
-         .type = GL_FLOAT,
-         .normalized = false,
-         .offset = sizeof(float) * 3}};
+    std::array<gl::VertexLayout, 2> vertex_layout = {
+        gl::VertexLayout{.elementCount = 3,
+                         .type = GL_FLOAT,
+                         .normalized = false,
+                         .offset = 0},
+        gl::VertexLayout{.elementCount = 2,
+                         .type = GL_FLOAT,
+                         .normalized = false,
+                         .offset = sizeof(float) * 3}};
     _quadVao.setVertexData(vertex_data, 5 * sizeof(float), vertex_layout);
+    _quadVao.setIndexData(index_data);
+    _quadVao.setVertexCount(6);
   }
 
   void submit(const SpriteInstance& instance) {
