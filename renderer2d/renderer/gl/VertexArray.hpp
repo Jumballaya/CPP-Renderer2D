@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <vector>
 
 #include "../common.hpp"
@@ -65,17 +66,18 @@ struct VertexArray {
     _isIndexed = true;
   }
 
-  void setVertexData(std::vector<float>& data, int stride, std::vector<VertexLayout>& layout) {
+  void setVertexData(std::span<const float> data, int strideBytes, std::span<const VertexLayout> layout) {
     bind();
-    _vbo.setData(data.data(), data.size() * sizeof(float));
+    _vbo.setData(data.data(), data.size_bytes());
 
     for (int i = 0; i < layout.size(); ++i) {
-      auto& vl = layout[i];
+      const auto& vl = layout[i];
       glEnableVertexAttribArray(i);
-      glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, stride, reinterpret_cast<void*>(vl.offset));
+      glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, strideBytes, reinterpret_cast<void*>(vl.offset));
     }
 
-    _vertexCount = data.size();
+    int floatsPerVertex = strideBytes / sizeof(float);
+    _vertexCount = data.size() / floatsPerVertex;
   }
 
   // @TODO: Split this into an initializeInstanceData and a setInstanceData
