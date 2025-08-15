@@ -61,23 +61,9 @@ int main() {
 
     renderer.beginFrame();
 
-    renderer.drawSprite({.transform = t1,
-                         .color = {0, 1, 1, 1},
-                         .texRect = {0, 0, 1, 1},
-                         .layer = 0},
-                        defaultTexture);
-
-    renderer.drawSprite({.transform = t2,
-                         .color = {1, 1, 0, 1},
-                         .texRect = {0, 0, 1, 1},
-                         .layer = 0},
-                        defaultTexture);
-
-    renderer.drawSprite({.transform = t3,
-                         .color = {1, 0, 1, 1},
-                         .texRect = {0, 0, 1, 1},
-                         .layer = 0},
-                        defaultTexture);
+    renderer.drawSprite(t1, {0, 1, 1, 1}, {0, 0, 1, 1}, 0, defaultTexture);
+    renderer.drawSprite(t2, {1, 1, 0, 1}, {0, 0, 1, 1}, 0, defaultTexture);
+    renderer.drawSprite(t3, {1, 0, 1, 1}, {0, 0, 1, 1}, 0, defaultTexture);
 
     renderer.endFrame(basicShader);
 

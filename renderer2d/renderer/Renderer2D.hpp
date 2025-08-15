@@ -43,7 +43,12 @@ class Renderer2D {
     foundShader->second.unbind();
   }
 
-  void drawSprite(const SpriteInstance& sprite, TextureHandle tex) {
+  void drawSprite(
+      const glm::mat4& transform,
+      const glm::vec4& color,
+      const glm::vec4& texRect,
+      float layer,
+      TextureHandle tex) {
     auto batch = _batches.find(tex);
     if (batch == _batches.end()) {
       auto texture = _textures.find(tex);
@@ -52,13 +57,13 @@ class Renderer2D {
         SpriteBatch& newBatch = _batches.at(tex);
         newBatch.initialize();
         newBatch.setTexture(&texture->second);
-        newBatch.submit(sprite);
+        newBatch.submit({transform, color, texRect, layer});
         return;
       } else {
         throw std::runtime_error("Error: Use of untracked TextureHandle");
       }
     }
-    batch->second.submit(sprite);
+    batch->second.submit({transform, color, texRect, layer});
   }
 
   TextureHandle createTexture(int width, int height, void* data) {
