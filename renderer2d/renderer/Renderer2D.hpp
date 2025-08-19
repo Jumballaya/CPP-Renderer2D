@@ -4,14 +4,18 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "ShaderHandle.hpp"
 #include "SpriteBatch.hpp"
 #include "SpriteInstance.hpp"
 #include "TextureHandle.hpp"
 #include "common.hpp"
+#include "gl/FrameBuffer.hpp"
+#include "gl/GLBuffer.hpp"
 #include "gl/Shader.hpp"
 #include "gl/Texture2D.hpp"
+#include "gl/VertexArray.hpp"
 
 //
 //  @TODO: Eventually tear out the RendererCommandQueue or whatever it will be called
@@ -130,4 +134,24 @@ class Renderer2D {
 
   uint32_t _nextTextureId = 1;
   uint32_t _nextShaderId = 1;
+
+  // Swapchain
+  gl::FrameBuffer _sceneFbo;  // main layer where all sprites/lines/shapes/etc. render
+  gl::FrameBuffer _pp[2];     // ping-pong for post effects
+  int _ppIndex = 0;
+
+  // Full screen
+  gl::VertexArray _fsVao;
+  gl::GLBuffer _fsVbo;
+  gl::Shader _copyShader;
+  bool _fsReady;
+
+  int _width = 0;
+  int _height = 0;
+
+  // Line Renderer
+  gl::VertexArray _lineVao;
+  gl::GLBuffer _lineVbo;
+  std::vector<float> _lineVerts;
+  gl::Shader _lineShader;
 };
