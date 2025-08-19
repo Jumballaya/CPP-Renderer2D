@@ -13,6 +13,21 @@
 #include "gl/Shader.hpp"
 #include "gl/Texture2D.hpp"
 
+//
+//  @TODO: Eventually tear out the RendererCommandQueue or whatever it will be called
+//         as well as the textures, shaders, spritebatch, linebatch, etc.
+//         Maybe a RenderResources class ? or just part of the eventual Renderer2DModule
+//         Then, turn this into a sprite renderer static class
+//
+//                Renderer: Base clase, abstracts away glXXX calls
+//                SpriteRenderer: Inherits from Renderer and renders a sprite batch
+//                LineRenderer: Inherits from Renderer and renders a line batch
+//                ShapeRenderer: Inherits from Renderer and renders shape batches
+//
+//
+//          This way we can submit commands, and use the appropriate renderer during the
+//          main thread draw calls
+//
 class Renderer2D {
  public:
   Renderer2D() = default;

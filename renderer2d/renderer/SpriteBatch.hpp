@@ -11,15 +11,14 @@
 #include "gl/VertexArray.hpp"
 
 // QUAD Data
-inline std::vector<float> vertex_data = {
+static constexpr std::array<float, 20> vertex_data = {
     // X     Y     Z     U     V
     -1.0f, 1.0f, 0.0f, 0.0f, 1.0f,   // v3: top-left
     -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // v0: bottom-left
     1.0f, -1.0f, 0.0f, 1.0f, 0.0f,   // v1: bottom-right
     1.0f, 1.0f, 0.0f, 1.0f, 1.0f,    // v2: top-right
 };
-
-inline std::vector<uint16_t> index_data = {0, 1, 2, 2, 3, 0};
+static constexpr std::array<uint16_t, 6> index_data = {0, 1, 2, 2, 3, 0};
 
 class SpriteBatch {
  public:
@@ -44,7 +43,6 @@ class SpriteBatch {
                          .offset = sizeof(float) * 3}};
     _quadVao.setVertexData(vertex_data, 5 * sizeof(float), vertex_layout);
     _quadVao.setIndexData(index_data);
-    _quadVao.setVertexCount(6);
   }
 
   void submit(const SpriteInstance& instance) {

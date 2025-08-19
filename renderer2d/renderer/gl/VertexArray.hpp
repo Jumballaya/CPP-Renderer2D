@@ -12,6 +12,9 @@ namespace gl {
 // @TODO: Create a VertexInstanceLayout struct and then
 //        create a meta VertexArrayLayout struct to wrap both.
 //
+//
+// @TODO: Switch to DSA since we are using OGL 4.6
+//
 struct VertexLayout {
   int elementCount;
   GLenum type;
@@ -60,14 +63,11 @@ struct VertexArray {
     _isInstanced = isInstanced;
   }
 
-  void setVertexCount(int vertexCount) {
-    _vertexCount = vertexCount;
-  }
-
   void setIndexData(std::span<const uint16_t> data) {
     bind();
     _ibo.setData(data.data(), data.size() * sizeof(uint16_t));
     _isIndexed = true;
+    _indexCount = data.size();
   }
 
   void setVertexData(std::span<const float> data, int strideBytes, std::span<const VertexLayout> layout) {
@@ -79,6 +79,9 @@ struct VertexArray {
       glEnableVertexAttribArray(i);
       glVertexAttribPointer(i, vl.elementCount, vl.type, vl.normalized, strideBytes, reinterpret_cast<void*>(vl.offset));
     }
+
+    const int floatsPerVertex = strideBytes / static_cast<int>(sizeof(float));
+    _vertexCount = static_cast<GLsizei>(data.size() / floatsPerVertex);
   }
 
   // @TODO: Split this into an initializeInstanceData and a setInstanceData
@@ -135,11 +138,11 @@ struct VertexArray {
   void draw(size_t instanceCount = 1) const {
     bind();
     if (_isIndexed && !_isInstanced) {
-      glDrawElements(GL_TRIANGLES, _vertexCount, GL_UNSIGNED_SHORT, nullptr);
+      glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_SHORT, nullptr);
       return;
     }
     if (_isIndexed && _isInstanced) {
-      glDrawElementsInstanced(GL_TRIANGLES, _vertexCount, GL_UNSIGNED_SHORT, nullptr, instanceCount);
+      glDrawElementsInstanced(GL_TRIANGLES, _indexCount, GL_UNSIGNED_SHORT, nullptr, instanceCount);
       return;
     }
     if (!_isIndexed && _isInstanced) {
@@ -156,6 +159,7 @@ struct VertexArray {
   GLBuffer _instanceBuffer;
 
   size_t _vertexCount;
+  size_t _indexCount;
 
   bool _isIndexed = false;
   bool _isInstanced = false;

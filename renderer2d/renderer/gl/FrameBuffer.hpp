@@ -57,11 +57,11 @@ struct FrameBuffer {
     attachTextures();
   }
 
-  void bind(GLenum target = GL_FRAMEBUFFER) {
+  void bind(GLenum target = GL_FRAMEBUFFER) const {
     glBindFramebuffer(target, _fbo);
   }
 
-  void unbind(GLenum target = GL_FRAMEBUFFER) {
+  void unbind(GLenum target = GL_FRAMEBUFFER) const {
     glBindFramebuffer(target, 0);
   }
 
@@ -90,9 +90,21 @@ struct FrameBuffer {
     unbind(GL_FRAMEBUFFER);
   }
 
-  GLuint id() const { return _fbo; }
+  void clear(float r, float g, float b, float a, bool clearDepth = true) const {
+    bind(GL_FRAMEBUFFER);
+    glClearColor(r, g, b, a);
+    GLbitfield bits = GL_COLOR_BUFFER_BIT | (clearDepth ? GL_DEPTH_BUFFER_BIT : 0);
+    glClear(bits);
+  }
 
+  GLuint id() const { return _fbo; }
   bool isValid() const { return _fbo != 0; }
+
+  const Texture2D& color() const { return _color; }
+  Texture2D& color() { return _color; }
+
+  int width() const { return _width; }
+  int height() const { return _height; }
 
  private:
   GLuint _fbo;
