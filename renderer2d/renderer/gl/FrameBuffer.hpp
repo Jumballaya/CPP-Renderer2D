@@ -106,6 +106,9 @@ struct FrameBuffer {
   int width() const { return _width; }
   int height() const { return _height; }
 
+  bool hasDepth() const { return _depth.isValid(); }
+  bool isSRGB() const { return _color.isSRGB(); }
+
  private:
   GLuint _fbo;
   Texture2D _color;

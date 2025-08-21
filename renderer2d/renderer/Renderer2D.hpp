@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "LineBatch.hpp"
 #include "ShaderHandle.hpp"
 #include "SpriteBatch.hpp"
 #include "SpriteInstance.hpp"
@@ -131,6 +132,7 @@ class Renderer2D {
   std::unordered_map<TextureHandle, gl::Texture2D> _textures;
   std::unordered_map<ShaderHandle, gl::Shader> _shaders;
   std::unordered_map<TextureHandle, SpriteBatch> _batches;
+  // LineBatch _lineBatch;
 
   uint32_t _nextTextureId = 1;
   uint32_t _nextShaderId = 1;
@@ -150,6 +152,7 @@ class Renderer2D {
   int _height = 0;
 
   // Line Renderer
+  // @TODO: create LineBatch
   gl::VertexArray _lineVao;
   gl::GLBuffer _lineVbo;
   std::vector<float> _lineVerts;

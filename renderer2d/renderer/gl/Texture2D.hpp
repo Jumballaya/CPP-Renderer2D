@@ -79,6 +79,10 @@ struct Texture2D {
     return _texture != 0;
   }
 
+  bool isSRGB() const {
+    return false;
+  }
+
   GLuint id() const {
     return _texture;
   }
