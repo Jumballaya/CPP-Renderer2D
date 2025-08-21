@@ -52,9 +52,23 @@ struct FrameBuffer {
   }
 
   void initialize(int width, int height) {
+    _width = width;
+    _height = height;
+
+    glGenFramebuffers(1, &_fbo);
+    bind();
+
     _color.initialize(width, height);
+    _depth.initialize(width, height);
 
     attachTextures();
+
+    // @TODO: Only run in debug mode
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+      std::cout << "Framebuffer not complete!" << std::endl;
+    }
+
+    unbind();
   }
 
   void bind(GLenum target = GL_FRAMEBUFFER) const {
@@ -107,10 +121,9 @@ struct FrameBuffer {
   int height() const { return _height; }
 
   bool hasDepth() const { return _depth.isValid(); }
-  bool isSRGB() const { return _color.isSRGB(); }
 
  private:
-  GLuint _fbo;
+  GLuint _fbo = 0;
   Texture2D _color;
   DepthBuffer _depth;
   int _width = 0;

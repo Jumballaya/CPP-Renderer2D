@@ -10,25 +10,6 @@
 #include "../renderer2d/renderer/gl/Texture2D.hpp"
 #include "../renderer2d/renderer/gl/VertexArray.hpp"
 
-std::vector<uint8_t> image{
-    255,
-    255,
-    255,
-    255,
-    0,
-    0,
-    0,
-    255,
-    0,
-    0,
-    0,
-    255,
-    255,
-    255,
-    255,
-    255,
-};
-
 glm::mat4 transform(glm::vec3 pos, float rot, glm::vec2 scale) {
   glm::mat4 out(1.0f);
   out = glm::translate(out, pos);
@@ -44,12 +25,7 @@ int main() {
   }
 
   Renderer2D renderer;
-
-  auto basicShader = renderer.createShaderFromFiles(
-      "assets/shaders/sprite/vertex.glsl",
-      "assets/shaders/sprite/fragment.glsl");
-
-  auto defaultTexture = renderer.createTexture(2, 2, image.data());
+  renderer.initialize(800, 600);
 
   glm::mat4 t1 = transform(glm::vec3(0.333f, -0.6f, 0.0f), 0.0f, glm::vec2(0.15, 0.15));
   glm::mat4 t2 = transform(glm::vec3(-0.5f, 0.1f, 0.0f), 0.0f, glm::vec2(0.15, 0.15));
@@ -61,11 +37,11 @@ int main() {
 
     renderer.beginFrame();
 
-    renderer.drawSprite(t1, {0, 1, 1, 1}, {0, 0, 1, 1}, 0, defaultTexture);
-    renderer.drawSprite(t2, {1, 1, 0, 1}, {0, 0, 1, 1}, 0, defaultTexture);
-    renderer.drawSprite(t3, {1, 0, 1, 1}, {0, 0, 1, 1}, 0, defaultTexture);
+    renderer.drawSprite(t1, {0, 1, 1, 1}, {0, 0, 1, 1}, 0, renderer.getDefaultTexture());
+    renderer.drawSprite(t2, {1, 1, 0, 1}, {0, 0, 1, 1}, 0, renderer.getDefaultTexture());
+    renderer.drawSprite(t3, {1, 0, 1, 1}, {0, 0, 1, 1}, 0, renderer.getDefaultTexture());
 
-    renderer.endFrame(basicShader);
+    renderer.endFrame();
 
     app.update();
   }

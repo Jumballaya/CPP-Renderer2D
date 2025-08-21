@@ -20,9 +20,13 @@ class Surface {
   }
 
   Surface& operator=(Surface&& other) noexcept {
+    if (&other == this) return *this;
     _frameBuffer = std::move(other._frameBuffer);
     _width = other._width;
     _height = other._height;
+    other._width = 0;
+    other._height = 0;
+    return *this;
   }
 
   void initialize(int w, int h) {
@@ -53,6 +57,10 @@ class Surface {
     _frameBuffer.resize(w, h);
   }
 
+  void clear(float r, float g, float b, float a, bool clearDepth = true) const {
+    _frameBuffer.clear(r, g, b, a, clearDepth);
+  }
+
   int width() const { return _width; }
   int height() const { return _height; }
 
@@ -60,8 +68,6 @@ class Surface {
   const gl::Texture2D& color() const { return _frameBuffer.color(); }
 
   bool hasDepth() const { return _frameBuffer.hasDepth(); }
-
-  bool isSRGB() const { return _frameBuffer.isSRGB(); }
 
  private:
   gl::FrameBuffer _frameBuffer;
