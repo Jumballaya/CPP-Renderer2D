@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <span>
 
+#include "../SpriteInstance.hpp"
 #include "../common.hpp"
 #include "GLBuffer.hpp"
 
