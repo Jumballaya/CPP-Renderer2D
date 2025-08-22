@@ -7,12 +7,22 @@ layout(location = 6) in vec4 a_color;
 layout(location = 7) in vec4 a_texRect;
 layout(location = 8) in float a_layer;
 
+layout(std140, binding = 0) uniform Camera {
+  mat4 uProj;
+  mat4 uView;
+  mat4 uProjView;
+  vec4 uViewport; // [u, v, _, _]
+};
+
 out vec2 v_texCoord;
 out vec4 v_color;
 out float v_layer;
 
 void main() {
-    gl_Position = a_transform * a_position;
+    vec4 world = a_transform * a_position;
+    
+    gl_Position = uProjView * world;
+
     v_texCoord = a_uv;
     v_texCoord.y = 1.0 - v_texCoord.y;
     v_color = a_color;

@@ -7,6 +7,7 @@
 #include <utility>
 #include <vector>
 
+#include "Camera2D.hpp"
 #include "ShaderHandle.hpp"
 #include "SpriteBatch.hpp"
 #include "SpriteInstance.hpp"
@@ -46,11 +47,17 @@ class Renderer2D {
         "assets/shaders/sprite/fragment.glsl");
 
     _screenShader = createShaderFromFiles(
-        "assets/shaders/2d-renderer/vertex.glsl",
-        "assets/shaders/2d-renderer/fragment.glsl");
+        "assets/shaders/screen/vertex.glsl",
+        "assets/shaders/screen/fragment.glsl");
 
     uint8_t image[16] = {255, 255, 255, 255};
     _defaultTexture = createTexture(1, 1, image);
+
+    _camera.initialize(width, height);
+  }
+
+  Camera2D& camera() {
+    return _camera;
   }
 
   void beginFrame() {
@@ -60,6 +67,8 @@ class Renderer2D {
   }
 
   void endFrame() {
+    _camera.upload();
+
     auto spriteShader = _shaders.find(_spriteShader);
     if (spriteShader == _shaders.end()) {
       return;
@@ -142,6 +151,8 @@ class Renderer2D {
       _swapchain[0].resize(w, h);
       _swapchain[1].resize(w, h);
     }
+
+    _camera.setViewport(w, h);
   }
 
   //
@@ -199,6 +210,8 @@ class Renderer2D {
   std::unordered_map<TextureHandle, gl::Texture2D> _textures;
   std::unordered_map<ShaderHandle, gl::Shader> _shaders;
   std::unordered_map<TextureHandle, SpriteBatch> _batches;
+
+  Camera2D _camera;
 
   uint32_t _nextTextureId = 1;
   uint32_t _nextShaderId = 1;

@@ -14,11 +14,11 @@ void Application::update() {
 bool Application::initialize() {
   _window.initialize(800, 600, "2D Renderer");
 
-  _window.setResizeCallback([](int w, int h) {
-    std::cout << "Window resized: " << w << " x " << h << "\n";
-  });
-
   return true;
+}
+
+Window& Application::window() {
+  return _window;
 }
 
 bool Application::shouldClose() const {

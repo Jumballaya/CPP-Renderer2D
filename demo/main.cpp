@@ -27,9 +27,14 @@ int main() {
   Renderer2D renderer;
   renderer.initialize(800, 600);
 
-  glm::mat4 t1 = transform(glm::vec3(0.333f, -0.6f, 0.0f), 0.0f, glm::vec2(0.15, 0.15));
-  glm::mat4 t2 = transform(glm::vec3(-0.5f, 0.1f, 0.0f), 0.0f, glm::vec2(0.15, 0.15));
-  glm::mat4 t3 = transform(glm::vec3(0.0f, 0.2f, 0.0f), 0.0f, glm::vec2(0.15, 0.15));
+  app.window().setResizeCallback([&renderer](int w, int h) {
+    std::cout << "Window resized: " << w << " x " << h << "\n";
+    renderer.resizeTargets(w, h);
+  });
+
+  glm::mat4 t1 = transform(glm::vec3(-90.0f, -90.0f, 0.0f), 0.0f, glm::vec2(20.0f, 20.0f));
+  glm::mat4 t2 = transform(glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, glm::vec2(20.0f, 20.0f));
+  glm::mat4 t3 = transform(glm::vec3(90.0f, 90.0f, 0.0f), 0.0f, glm::vec2(20.0f, 20.0f));
 
   while (!app.shouldClose()) {
     renderer.beginFrame();

@@ -16,6 +16,8 @@ class Application {
   bool initialize();
   void update();
 
+  Window& window();
+
   bool shouldClose() const;
 
  private:
