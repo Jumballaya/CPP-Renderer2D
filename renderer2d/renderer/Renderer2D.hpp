@@ -52,8 +52,6 @@ class Renderer2D {
 
     uint8_t image[16] = {255, 255, 255, 255};
     _defaultTexture = createTexture(1, 1, image);
-
-    _camera.initialize(width, height);
   }
 
   Camera2D& camera() {
@@ -146,6 +144,7 @@ class Renderer2D {
       _sceneSurface.initialize(w, h);
       _swapchain[0].initialize(w, h);
       _swapchain[1].initialize(w, h);
+      _camera.initialize(w, h);
     } else {
       _sceneSurface.resize(w, h);
       _swapchain[0].resize(w, h);

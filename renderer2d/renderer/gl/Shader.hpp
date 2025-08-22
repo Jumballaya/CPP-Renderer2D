@@ -5,6 +5,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 
@@ -158,4 +159,4 @@ class Shader {
     return ss.str();
   }
 };
-}
+}  // namespace gl

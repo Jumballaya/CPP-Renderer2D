@@ -65,6 +65,8 @@ class Camera2D {
       rebuildMatrices();
     }
 
+    _ubo.bind();
+
     CameraBlock block;
     block.proj = _proj;
     block.view = _view;
