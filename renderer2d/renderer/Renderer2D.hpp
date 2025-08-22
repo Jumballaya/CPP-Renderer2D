@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include "LineBatch.hpp"
 #include "ShaderHandle.hpp"
 #include "SpriteBatch.hpp"
 #include "SpriteInstance.hpp"
@@ -22,7 +21,7 @@
 
 //
 //  @TODO: Eventually tear out the RendererCommandQueue or whatever it will be called
-//         as well as the textures, shaders, spritebatch, linebatch, etc.
+//         as well as the textures, shaders, spritebatch, etc.
 //         Maybe a RenderResources class ? or just part of the eventual Renderer2DModule
 //         Then, turn this into a sprite renderer static class
 //
@@ -50,30 +49,8 @@ class Renderer2D {
         "assets/shaders/2d-renderer/vertex.glsl",
         "assets/shaders/2d-renderer/fragment.glsl");
 
-    uint8_t image[16] = {
-        255,
-        255,
-        255,
-        255,
-        0,
-        0,
-        0,
-        255,
-        0,
-        0,
-        0,
-        255,
-        255,
-        255,
-        255,
-        255,
-    };
-
-    _defaultTexture = createTexture(2, 2, image);
-  }
-
-  void viewport(int x, int y, int width, int height) const {
-    glViewport(x, y, width, height);
+    uint8_t image[16] = {255, 255, 255, 255};
+    _defaultTexture = createTexture(1, 1, image);
   }
 
   void beginFrame() {
@@ -93,24 +70,28 @@ class Renderer2D {
     }
 
     _sceneSurface.bind();
-    viewport(0, 0, _sceneSurface.width(), _sceneSurface.height());
+    glViewport(0, 0, _sceneSurface.width(), _sceneSurface.height());
     _sceneSurface.clear(0.0f, 0.0f, 0.0f, 1.0f, true);
 
     spriteShader->second.bind();
     for (auto& [texHandle, batch] : _batches) {
       auto itTex = _textures.find(texHandle);
       if (itTex == _textures.end()) {
-        // @TODO: log error and continue, or use a default texture
-        continue;
+        // @TODO: Log error -- texture not found for batch
+        auto itDefTex = _textures.find(_defaultTexture);
+        if (itDefTex == _textures.end()) {
+          // @TODO: Log error -- default texture not found
+          continue;
+        }
+        itDefTex->second.bindToSlot(0);
+      } else {
+        itTex->second.bindToSlot(0);
       }
-      itTex->second.bindToSlot(0);
       batch.setTexture(&itTex->second);
       batch.draw();
     }
 
     spriteShader->second.unbind();
-
-    // @TODO: Line Pass
 
     screenShader->second.bind();
     blitSurface(_sceneSurface, _swapchain[_swapIndex]);
@@ -218,38 +199,23 @@ class Renderer2D {
   std::unordered_map<TextureHandle, gl::Texture2D> _textures;
   std::unordered_map<ShaderHandle, gl::Shader> _shaders;
   std::unordered_map<TextureHandle, SpriteBatch> _batches;
-  // LineBatch _lineBatch;
 
   uint32_t _nextTextureId = 1;
   uint32_t _nextShaderId = 1;
 
-  // Swapchain
-  Surface _sceneSurface;  // main layer where all sprites/lines/shapes/etc. render
-  Surface _swapchain[2];  // ping-pong for post effects
-  int _swapIndex = 0;
-
-  // Full screen
-  gl::VertexArray _fsVao;
-  gl::GLBuffer _fsVbo;
-  gl::Shader _copyShader;
-  bool _fsReady;
-
   int _width = 0;
   int _height = 0;
-
-  // Line Renderer
-  // @TODO: create LineBatch
-  gl::VertexArray _lineVao;
-  gl::GLBuffer _lineVbo;
-  std::vector<float> _lineVerts;
-  gl::Shader _lineShader;
 
   // Misc 2D Renderer Resources
   ShaderHandle _spriteShader;
   ShaderHandle _screenShader;
   TextureHandle _defaultTexture;
 
-  // Render Swap Chain
+  // Swapchain
+  Surface _sceneSurface;  // main layer where all sprites render
+  Surface _swapchain[2];  // ping-pong for post effects
+  int _swapIndex = 0;
+
   void blitSurface(const Surface& src, Surface& dst) {
     src.bindRead();
     dst.bindDraw();
